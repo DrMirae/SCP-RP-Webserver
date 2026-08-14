@@ -17,10 +17,6 @@ export default function call_process(process, data) {
                 return {code: 400, message: {"error": "Invalid data, parameters: operation : string (\"get\" / \"set\" / \"add\" / \"remove\"), roblox_id : string, time : int (default: 0) (seconds)"}};
             }
 
-            if (!time) {
-                time = 0;
-            }
-
             return player_time_on_server(operation, roblox_id, time);
         default:
             let object
@@ -30,5 +26,6 @@ export default function call_process(process, data) {
                 object = '[Unable to stringify object]';
             }
             logger.warn(`Unknown process: ${process}\n${object}`);
+            return { code: 404, message: { error: `Unknown Process: ${process}` } };
     }
 }
