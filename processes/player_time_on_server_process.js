@@ -12,10 +12,12 @@ import { query } from '#utility/database.js';
 async function player_time_on_server(operation, roblox_id, time = 0) {
     switch (operation) {
         case "get":
+            logger.info(`Getting playtime for player ${roblox_id}`);
             const result = await query("SELECT playtime FROM users WHERE roblox_id = ?", [roblox_id]);
             if (result.length > 0) {
                 return { code: 200, message: { [roblox_id]: result[0].playtime } };
             } else {
+                logger.info(`Player ${roblox_id} not found`);
                 return { code: 404, message: { error: "Player not found" } };
             }
         case "set":
@@ -26,6 +28,7 @@ async function player_time_on_server(operation, roblox_id, time = 0) {
             break;
 
         default:
+            logger.info(`Operation ${operation} not implemented`);
             return { code: 400, message: { error: "Not implemented" } };
     }
 

@@ -53,6 +53,8 @@ app.post('/post', async (req, res) => {
 
         const { code, message } = process_request_data(request_data);
 
+        logger.debug(code, message);
+
         res.json({ code, message });
 
     } catch (error) {
