@@ -40,17 +40,17 @@ function process_request_data(request_data){
 
     logger.info(`Received request for process: ${process}`);
 
-    try {
-        const response = call_process(process, data);
-
+    let return_response;
+    call_process(process, data).then((response) => {
         logger.info(`Request ${process} have been Processed!`);
         logger.debug('process_request_data', response.code, response.message);
-
-        return response;
-    } catch (error) {
+        return_response = response;
+    }).catch((error) => {
         logger.error('There was an error while processing the request:', error, '\nData:\n', data, '\nProcess:', process, '\n\n', '----------------------------------------\n');
-        return {code: 500, message: {error: "Internal Server Error"}};
-    }
+        return_response = {code: 500, message: {error: "Internal Server Error"}};
+    });
+
+    return return_response;
 }
 
 app.post('/post', async (req, res) => {

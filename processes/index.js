@@ -7,7 +7,7 @@ import player_time_on_server from "#processes/player_time_on_server_process.js";
  * @param {object} data - for each Process:
  *  player_time_on_server: [{operation: "get"/"set"/"add"/"remove", roblox_id: string, time: number (seconds)}]
  */
-export default function call_process(process, data) {
+export default async function call_process(process, data) {
     switch (process) {
         case 'player_time_on_server':
             //WIP
@@ -17,7 +17,7 @@ export default function call_process(process, data) {
                 return {code: 400, message: {"error": "Invalid data, parameters: operation : string (\"get\" / \"set\" / \"add\" / \"remove\"), roblox_id : string, time : int (default: 0) (seconds)"}};
             }
 
-            const response = player_time_on_server(operation, roblox_id, time);
+            const response = await player_time_on_server(operation, roblox_id, time);
             logger.debug('call_process', response.code, response.message);
 
             return response;
