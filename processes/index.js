@@ -11,13 +11,13 @@ export default async function call_process(process, data) {
     switch (process) {
         case 'player_time_on_server':
             //WIP
-            const { operation, roblox_id, time } = data;
-            if (!operation || !roblox_id) {
+            const { operation, roblox_id, username, time } = data;
+            if (!operation || !roblox_id || !username) {
                 logger.warn(`Invalid data for process: ${process}\n${JSON.stringify(data, null, 2)}`);
-                return {code: 400, message: {"error": "Invalid data, parameters: operation : string (\"get\" / \"set\" / \"add\" / \"remove\"), roblox_id : string, time : int (default: 0) (seconds)"}};
+                return {code: 400, message: {"error": "Invalid data, parameters: operation : string (\"get\" / \"set\" / \"add\" / \"remove\"), roblox_id : string, username : string, time : int (default: 0) (seconds)"}};
             }
 
-            return await player_time_on_server(operation, roblox_id, time);
+            return await player_time_on_server(operation, roblox_id, username, time);
         default:
             let object
             try {

@@ -5,11 +5,12 @@ import { query } from '#utility/database.js';
  * Performs a DB operation on a player's playtime
  * @param {string} operation - "get" / "set" / "add" / "remove"
  * @param {string} roblox_id - The ID of the Player
+ * @param {string} username - The username of the Player
  * @param {int} time - The time in terms of seconds on how long the player's been on the server
  *
  * @return {Promise<Object<code:number,message:object>>} - Code 200 if it was successful with the message {roblox_id: <int>} as {roblox_id: playtime}, otherwise an error with its corresponding code and message
  */
-async function player_time_on_server(operation, roblox_id, time = 0) {
+async function player_time_on_server(operation, roblox_id, username, time = 0) {
     switch (operation) {
         case "get":
             logger.info(`Getting playtime for player ${roblox_id}`);
@@ -24,10 +25,10 @@ async function player_time_on_server(operation, roblox_id, time = 0) {
             logger.info(`Setting playtime for player ${roblox_id}`);
             try {
                 await query(
-                    `INSERT INTO users (roblox_id, playtime)
-                 VALUES (?, ?)
-                 ON DUPLICATE KEY UPDATE playtime = VALUES(playtime)`,
-                    [roblox_id, time]
+                    `INSERT INTO users (roblox_id, username, playtime)
+                 VALUES (?, ?, ?)
+                 ON DUPLICATE KEY UPDATE playtime = VALUES(username, playtime)`,
+                    [roblox_id, username, time]
                 );
             } catch (error) {
                 logger.error(`Error setting playtime for player ${roblox_id}: ${error}`);
