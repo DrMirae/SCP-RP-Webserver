@@ -23,7 +23,7 @@ function verify_key(timestamp, key){
     return key/KEY_MULTIPLIER === timestamp;
 }
 
-function process_request_data(request_data){
+async function process_request_data(request_data){
     if (!(request_data !== null && request_data.constructor === Object)) {
         logger.warn('Received invalid request data:', request_data);
         return {code: 400, message: {error: "Invalid request data"}};
@@ -40,14 +40,20 @@ function process_request_data(request_data){
 
     logger.info(`Received request for process: ${process}`);
 
-    call_process(process, data).then((response) => {
-        logger.info(`Request ${process} have been Processed!`);
+    try {
+        const response = await call_process(process, data);
+
+        logger.info(`Request ${process} has been processed!`);
         logger.debug('process_request_data', response.code, response.message);
+
         return response;
-    }).catch((error) => {
-        logger.error('There was an error while processing the request:', error, '\nData:\n', data, '\nProcess:', process, '\n\n', '----------------------------------------\n');
-        return {code: 500, message: {error: "Internal Server Error"}};
-    });
+    } catch (error) {
+        logger.error('There was an error while processing the request:', error);
+        return {
+            code: 500,
+            message: { error: "Internal Server Error" }
+        };
+    }
 }
 
 app.post('/post', async (req, res) => {
