@@ -21,7 +21,19 @@ async function player_time_on_server(operation, roblox_id, time = 0) {
                 return { code: 404, message: { error: "Player not found" } };
             }
         case "set":
-            break;
+            logger.info(`Setting playtime for player ${roblox_id}`);
+            try {
+                await query(
+                    `INSERT INTO users (roblox_id, playtime)
+                 VALUES (?, ?)
+                 ON DUPLICATE KEY UPDATE playtime = VALUES(playtime)`,
+                    [roblox_id, time]
+                );
+            } catch (error) {
+                logger.error(`Error setting playtime for player ${roblox_id}: ${error}`);
+                return { code: 500, message: { error: "Internal server error" } };
+            }
+            return { code: 200, message: { [roblox_id]: time } };
         case "add":
             break;
         case "remove":
