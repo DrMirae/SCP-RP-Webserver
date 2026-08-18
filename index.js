@@ -4,9 +4,24 @@ import call_process from "#processes/index.js";
 import logger from "#utility/logger.js";
 import shutdown from "#utility/shutdown.js";
 import { SERVER_PORT } from "#config/index.js";
+import { KEY_MULTIPLIER } from "#config/index.js";
 
 const app = express();
 app.use(bodyParser.json());
+
+function verify_key(timestamp, key){
+    if (typeof timestamp !== 'number' || typeof key !== 'number') {
+        return false;
+    }
+
+    const current_timestamp = Math.floor(Date.now() / 1000);
+
+    if (0 > current_timestamp - timestamp > 30) {
+        return false;
+    }
+
+    return key/KEY_MULTIPLIER === timestamp;
+}
 
 function process_request_data(request_data){
     if (!(request_data !== null && request_data.constructor === Object)) {
@@ -14,17 +29,13 @@ function process_request_data(request_data){
         return {code: 400, message: {error: "Invalid request data"}};
     }
 
+    const key = request_data.key;
     const process = request_data.process;
     const data = request_data.data;
 
-    if (!process){
+    if (!process || !(data !== null && data.constructor === Object) || !key) {
         logger.warn('Received invalid request data:', request_data);
-        return {code: 400, message: {error: "Invalid Process"}};
-    }
-
-    if (!(data !== null && data.constructor === Object)) {
-        logger.warn('Received invalid request data:', request_data);
-        return {code: 400, message: {error: "Invalid Data"}};
+        return {code: 400, message: {error: "Invalid request structure"}};
     }
 
     logger.info(`Received request for process: ${process}`);
@@ -33,6 +44,7 @@ function process_request_data(request_data){
         const { code, message } = call_process(process, data);
 
         logger.info(`Request ${process} have been Processed!`);
+        logger.debug('process_request_data', code, message);
 
         return {code: code, message: message};
     } catch (error) {
@@ -53,7 +65,7 @@ app.post('/post', async (req, res) => {
 
         const { code, message } = process_request_data(request_data);
 
-        logger.debug(code, message);
+        logger.debug('Post', code, message);
 
         res.json({ code, message });
 
