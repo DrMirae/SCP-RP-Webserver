@@ -17,10 +17,10 @@ export default function call_process(process, data) {
                 return {code: 400, message: {"error": "Invalid data, parameters: operation : string (\"get\" / \"set\" / \"add\" / \"remove\"), roblox_id : string, time : int (default: 0) (seconds)"}};
             }
 
-            const { code, message } = player_time_on_server(operation, roblox_id, time);
-            logger.debug('call_process', code, message);
+            const response = player_time_on_server(operation, roblox_id, time);
+            logger.debug('call_process', response.code, response.message);
 
-            return {code, message};
+            return response;
         default:
             let object
             try {
