@@ -17,10 +17,7 @@ export default async function call_process(process, data) {
                 return {code: 400, message: {"error": "Invalid data, parameters: operation : string (\"get\" / \"set\" / \"add\" / \"remove\"), roblox_id : string, time : int (default: 0) (seconds)"}};
             }
 
-            const response = await player_time_on_server(operation, roblox_id, time);
-            logger.debug('call_process', response.code, response.message);
-
-            return response;
+            return await player_time_on_server(operation, roblox_id, time);
         default:
             let object
             try {

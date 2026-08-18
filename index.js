@@ -44,7 +44,6 @@ async function process_request_data(request_data){
         const response = await call_process(process, data);
 
         logger.info(`Request ${process} has been processed!`);
-        logger.debug('process_request_data', response.code, response.message);
 
         return response;
     } catch (error) {
@@ -67,8 +66,6 @@ app.post('/post', async (req, res) => {
         //logger.debug(`Received Raw JSON data: ${JSON.stringify(request_data, null, 2)}`);
 
         const response = process_request_data(request_data);
-
-        logger.debug('Post', response.code, response.message);
 
         res.json(response);
 
