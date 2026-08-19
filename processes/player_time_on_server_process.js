@@ -26,8 +26,10 @@ async function player_time_on_server(operation, roblox_id, username, time = 0) {
             try {
                 await query(
                     `INSERT INTO users (roblox_id, username, playtime)
-                 VALUES (?, ?, ?)
-                 ON DUPLICATE KEY UPDATE playtime = VALUES(username, playtime)`,
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE
+                        username = VALUES(username),
+                        playtime = VALUES(playtime)`,
                     [roblox_id, username, time]
                 );
             } catch (error) {
