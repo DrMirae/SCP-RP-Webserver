@@ -59,7 +59,7 @@ async function player_time_on_server(operation, roblox_id, username, time = 0) {
                 [roblox_id]
             )
 
-            new_playtime = former_playtime + time;
+            new_playtime = former_playtime[0].playtime + time;
             formatted_playtime = formatSeconds(new_playtime);
 
             logger.info(`Setting playtime for player ${roblox_id} to ${formatted_playtime} (${new_playtime}s)`);
