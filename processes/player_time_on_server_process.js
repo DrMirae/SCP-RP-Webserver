@@ -1,6 +1,15 @@
 import logger from '#utility/logger.js';
 import { query } from '#utility/database.js';
 
+function formatSeconds(totalSeconds) {
+    const seconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = seconds % 60;
+
+    return `${String(hours).padStart(2, "0")}h ${String(minutes).padStart(2, "0")}m ${String(remainingSeconds).padStart(2, "0")}s`;
+}
+
 /**
  * Performs a DB operation on a player's playtime
  * @param {string} operation - "get" / "set" / "add" / "remove"
@@ -11,6 +20,12 @@ import { query } from '#utility/database.js';
  * @return {Promise<Object<code:number,message:object>>} - Code 200 if it was successful with the message {roblox_id: <int>} as {roblox_id: playtime}, otherwise an error with its corresponding code and message
  */
 async function player_time_on_server(operation, roblox_id, username, time = 0) {
+    if (time < 0) {
+        logger.warn(`Request for player ${roblox_id} has a negative time, refusing operation`);
+        return { code: 400, message: { error: "Bad Request, Time cannot be less than 0" } };
+    }
+
+    let former_playtime, new_playtime, formatted_playtime;
     switch (operation) {
         case "get":
             logger.info(`Getting playtime for player ${roblox_id}`);
@@ -22,7 +37,8 @@ async function player_time_on_server(operation, roblox_id, username, time = 0) {
                 return { code: 404, message: { error: "Player not found" } };
             }
         case "set":
-            logger.info(`Setting playtime for player ${roblox_id}`);
+            const formatted_time = formatSeconds(time);
+            logger.info(`Setting playtime for player ${roblox_id} to ${formatted_time} (${time}s)`);
             try {
                 await query(
                     `INSERT INTO users (roblox_id, username, playtime)
@@ -38,16 +54,73 @@ async function player_time_on_server(operation, roblox_id, username, time = 0) {
             }
             return { code: 200, message: { [roblox_id]: time } };
         case "add":
-            break;
+            former_playtime = await query(
+                'SELECT playtime FROM users WHERE roblox_id = ?',
+                [roblox_id]
+            )
+
+            new_playtime = former_playtime + time;
+            formatted_playtime = formatSeconds(new_playtime);
+
+            logger.info(`Setting playtime for player ${roblox_id} to ${formatted_playtime} (${new_playtime}s)`);
+
+            try {
+                await query(
+                    `INSERT INTO users (roblox_id, username, playtime)
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE
+                        username = VALUES(username),
+                        playtime = VALUES(playtime)`,
+                    [roblox_id, username, new_playtime]
+                )
+            } catch (error) {
+                logger.error(`Error setting playtime for player ${roblox_id}: ${error}`);
+                return { code: 500, message: { error: "Internal server error" } };
+            }
+
+            return { code: 200, message: { [roblox_id]: formatted_playtime } };
         case "remove":
-            break;
+            former_playtime = await query(
+                'SELECT playtime FROM users WHERE roblox_id = ?',
+                [roblox_id]
+            )
+
+            if (former_playtime.length === 0) {
+                logger.warn(`Player not found ${roblox_id}`);
+                return { code: 404, message: { error: "Player not found" } };
+            }
+
+            if (former_playtime[0].playtime < time) {
+                new_playtime = 0;
+                logger.warn(`Player playtime is less than the time to remove for player ${roblox_id}, setting playtime to 0`);
+            } else {
+                new_playtime = former_playtime[0].playtime - time;
+            }
+
+            formatted_playtime = formatSeconds(new_playtime);
+
+            logger.info(`Setting playtime for player ${roblox_id} to ${formatted_playtime} (${new_playtime}s)`);
+
+            try {
+                await query(
+                    `INSERT INTO users (roblox_id, username, playtime)
+                    VALUES (?, ?, ?)
+                    ON DUPLICATE KEY UPDATE
+                        username = VALUES(username),
+                        playtime = VALUES(playtime)`,
+                    [roblox_id, username, new_playtime]
+                )
+            } catch (error) {
+                logger.error(`Error setting playtime for player ${roblox_id}: ${error}`);
+                return { code: 500, message: { error: "Internal server error" } };
+            }
+
+            return { code: 200, message: { [roblox_id]: formatted_playtime } };
 
         default:
             logger.info(`Operation ${operation} not implemented`);
             return { code: 400, message: { error: "Not implemented" } };
     }
-
-    return { code: 400, message: { error: "Not implemented" } };
 }
 
 export default player_time_on_server;
