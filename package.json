@@ -1,6 +1,6 @@
 {
-  "name": "mega3-webserver",
-  "version": "3.1.0",
+  "name": "site-sb-operations-api",
+  "version": "0.2.0",
   "description": "",
   "main": "index.js",
   "type": "module",
