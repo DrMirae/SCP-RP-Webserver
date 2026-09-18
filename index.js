@@ -4,25 +4,10 @@ import call_process from "#processes/index.js";
 import logger from "#utility/logger.js";
 import shutdown from "#utility/shutdown.js";
 import { SERVER_PORT } from "#config/index.js";
-import { KEY_MULTIPLIER } from "#config/index.js";
+import verify_key from "#utility/key_verification.js";
 
 const app = express();
 app.use(bodyParser.json());
-
-function verify_key(timestamp, key){
-    if (typeof timestamp !== 'number' || typeof key !== 'number') {
-        return false;
-    }
-
-    const current_timestamp = Math.floor(Date.now() / 1000);
-
-    if (5 > current_timestamp - timestamp || current_timestamp - timestamp > 15) {
-        logger.debug('Key verification failed: Timestamp is out of date.');
-        return false;
-    }
-
-    return Math.floor(key/KEY_MULTIPLIER) === timestamp;
-}
 
 async function process_request_data(request_data){
     if (!(request_data !== null && request_data.constructor === Object)) {
@@ -53,7 +38,7 @@ async function process_request_data(request_data){
         if (response.code === 200) {
             logger.info(`Request ${process} has been processed successfully!`);
         } else if (response.code !== 401) {
-            logger.error(`Request ${process} failed with code: ${response.code}, message: ${JSON.stringify(response.message)}`);
+            logger.warn(`Request ${process} failed with code: ${response.code}, message: ${JSON.stringify(response.message)}`);
         }
 
         return response;
