@@ -35,7 +35,11 @@ const pool = mariadb.createPool({
  */
 async function getConnection() {
     try {
-        return await pool.getConnection();
+        logger.info('Acquiring database connection...');
+        const connection = await pool.getConnection();
+
+        logger.info('Database connection acquired.');
+        return connection;
     } catch (err) {
         logger.error('Failed to acquire a database connection', err);
         throw err;

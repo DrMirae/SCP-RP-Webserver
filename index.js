@@ -27,13 +27,12 @@ async function process_request_data(request_data){
     try {
         let response;
         if (verify_key(key.key1, key.key2)) {
+            logger.info(`Approved request for process: ${process}`);
             response = await call_process(process, data);
         } else {
             logger.warn('Invalid key received:', request_data.key);
             response = {code: 401, message: {error: "Invalid key"}};
         }
-
-        logger.info(`Approved request for process: ${process}`);
 
         if (response.code === 200) {
             logger.info(`Request ${process} has been processed successfully!`);

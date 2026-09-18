@@ -19,8 +19,6 @@ function verify_key(timestamp, key){
 
     const current_timestamp = Math.floor(Date.now() / 1000);
 
-    logger.debug('Key verification: Timestamp difference:', timestamp - current_timestamp);
-
     if (5 < timestamp - current_timestamp || timestamp - current_timestamp < -15) {
         logger.debug('Key verification failed: Timestamp is out of date.');
         return false;
