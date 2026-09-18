@@ -16,11 +16,12 @@ function verify_key(timestamp, key){
 
     const current_timestamp = Math.floor(Date.now() / 1000);
 
-    if (0 > current_timestamp - timestamp > 30) {
+    if (5 > current_timestamp - timestamp || current_timestamp - timestamp > 15) {
+        logger.debug('Key verification failed: Timestamp is out of date.');
         return false;
     }
 
-    return key/KEY_MULTIPLIER === timestamp;
+    return Math.floor(key/KEY_MULTIPLIER) === timestamp;
 }
 
 async function process_request_data(request_data){
@@ -41,9 +42,19 @@ async function process_request_data(request_data){
     logger.info(`Received request for process: ${process}`);
 
     try {
-        const response = await call_process(process, data);
+        let response;
+        if (verify_key(key.key1, key.key2)) {
+            response = await call_process(process, data);
+        } else {
+            logger.warn('Invalid key received:', request_data.key);
+            response = {code: 401, message: {error: "Invalid key"}};
+        }
 
-        logger.info(`Request ${process} has been processed!`);
+        if (response.code === 200) {
+            logger.info(`Request ${process} has been processed successfully!`);
+        } else if (response.code !== 401) {
+            logger.error(`Request ${process} failed with code: ${response.code}, message: ${JSON.stringify(response.message)}`);
+        }
 
         return response;
     } catch (error) {
@@ -65,7 +76,7 @@ app.post('/post', async (req, res) => {
         const request_data = req.body;
         //logger.debug(`Received Raw JSON data: ${JSON.stringify(request_data, null, 2)}`);
 
-        const response = process_request_data(request_data);
+        const response = await process_request_data(request_data);
 
         res.json(response);
 
