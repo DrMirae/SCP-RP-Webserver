@@ -24,8 +24,6 @@ async function process_request_data(request_data){
         return {code: 400, message: {error: "Invalid request structure"}};
     }
 
-    logger.info(`Received request for process: ${process}`);
-
     try {
         let response;
         if (verify_key(key.key1, key.key2)) {
@@ -34,6 +32,8 @@ async function process_request_data(request_data){
             logger.warn('Invalid key received:', request_data.key);
             response = {code: 401, message: {error: "Invalid key"}};
         }
+
+        logger.info(`Approved request for process: ${process}`);
 
         if (response.code === 200) {
             logger.info(`Request ${process} has been processed successfully!`);

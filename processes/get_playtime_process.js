@@ -40,6 +40,6 @@ export default async function getPlaytime(roblox_id, username) {
     const playtime_formatted = formatSeconds(playtime);
 
     logger.info(`${updated_roblox_id} has a playtime of ${playtime_formatted}`);
-    return { code: 200, message: { roblox_id: playtime } };
+    return { code: 200, message: { roblox_id: updated_roblox_id, playtime: playtime } };
 
 }

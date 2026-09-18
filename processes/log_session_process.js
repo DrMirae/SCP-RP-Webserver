@@ -53,6 +53,6 @@ export default async function logSession(roblox_id, username, start_timestamp, e
 
     logger.info(`Logged session for player ${roblox_id} with playtime ${new_playtime_formatted}`);
 
-    return { code: 200, message: { roblox_id: new_playtime } };
+    return { code: 200, message: { roblox_id: roblox_id, playtime: new_playtime } };
 
 }
