@@ -70,7 +70,7 @@ class Logger {
 
         // Format any additional arguments (objects, errors, primitives)
         const formattedExtras = args.map(arg => this.stringifyArg(arg));
-        const combined = [baseMessage, ...formattedExtras].filter(Boolean).join(' | ');
+        const combined = [baseMessage, ...formattedExtras].filter(Boolean).join(' ');
 
         // Plain message for file logging (no ANSI colors)
         const timeStamp = this.getTimeStamp();
