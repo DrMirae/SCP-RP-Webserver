@@ -65,7 +65,7 @@ app.post('/post', async (req, res) => {
         const request_data = req.body;
         //logger.debug(`Received Raw JSON data: ${JSON.stringify(request_data, null, 2)}`);
 
-        const response = process_request_data(request_data);
+        const response = await process_request_data(request_data);
 
         res.json(response);
 
