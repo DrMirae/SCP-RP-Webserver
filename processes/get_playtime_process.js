@@ -15,7 +15,7 @@ function formatSeconds(totalSeconds) {
  * @param {string} roblox_id - The ID of the Player
  * @param {string} username - The username of the Player
  *
- * @return {Promise<Object<code:number,message:object>>} - Code 200 if it was successful with the message {roblox_id: <int>} as {roblox_id: playtime}, otherwise an error with its corresponding code and message
+ * @return {Promise<Object<code:number,message:object>>} - Code 200 if it was successful with the message {roblox_id: <int>, playtime: <int>}, otherwise an error with its corresponding code and message
  */
 export default async function getPlaytime(roblox_id, username) {
     let sql;

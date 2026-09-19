@@ -17,7 +17,7 @@ function formatSeconds(totalSeconds) {
  * @param {int} start_timestamp - The timestamp of when the player started playing
  * @param {int} end_timestamp - The timestamp of when the player stopped playing
  *
- * @return {Promise<Object<code:number,message:object>>} - Code 200 if it was successful with the message {roblox_id: <int>} as {roblox_id: playtime}, otherwise an error with its corresponding code and message
+ * @return {Promise<Object<code:number,message:object>>} - Code 200 if it was successful with the message {roblox_id: <int>, playtime: <int>}, otherwise an error with its corresponding code and message
  */
 export default async function logSession(roblox_id, username, start_timestamp, end_timestamp) {
     const playtime = end_timestamp - start_timestamp;

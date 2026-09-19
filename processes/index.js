@@ -1,6 +1,7 @@
 import logger from "#utility/logger.js";
 import logSession from "#processes/log_session_process.js";
 import getPlaytime from "#processes/get_playtime_process.js";
+import getAllSessions from "#processes/get_all_sessions_process.js";
 
 /**
  * Uses switch() and correctly sorts args for each process
@@ -8,6 +9,7 @@ import getPlaytime from "#processes/get_playtime_process.js";
  * @param {object} data - for each Process:
  *  log_session: {roblox_id: string, username: string, start_timestamp: int (seconds), end_timestamp: int (seconds)}
  *  get_playtime: {roblox_id: string or username: string}
+ *  get_all_sessions: {roblox_id: string or username: string}
  * @returns {object} - {code: int, message: object}
  */
 export default async function call_process(process, data) {
@@ -28,6 +30,14 @@ export default async function call_process(process, data) {
             }
 
             return getPlaytime(data.roblox_id, data.username);
+
+        case 'get_all_sessions':
+            if (!data.roblox_id && !data.username) {
+                logger.warn(`Invalid data for process: ${process}\n${JSON.stringify(data, null, 2)}`);
+                return {code: 400, message: {"error": "Invalid data, parameters: roblox_id: string or username: string"}};
+            }
+
+            return getAllSessions(data.roblox_id, data.username);
 
         default:
             let object
