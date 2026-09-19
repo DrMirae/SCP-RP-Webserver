@@ -1,6 +1,7 @@
 {
   "name": "site-sb-operations-api",
-  "version": "0.3.2",
+  "version": "0.3.3",
+  "author": "drmirae",
   "description": "",
   "main": "index.js",
   "type": "module",
